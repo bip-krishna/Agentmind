@@ -1,0 +1,51 @@
+{
+  "name": "context-memory",
+  "private": false,
+  "version": "0.1.0",
+  "description": "Persistent, project-scoped context layer for AI applications",
+  "type": "module",
+  "exports": {
+    ".": "./dist/packages/core/src/index.js",
+    "./storage": "./dist/packages/storage/src/index.js",
+    "./embeddings": "./dist/packages/embeddings/src/index.js",
+    "./integrations": "./dist/packages/integrations/src/index.js",
+    "./retrieval": "./dist/packages/retrieval/src/index.js"
+  },
+  "bin": {
+    "context-memory": "./dist/cli/src/index.js"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "cli"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && npx tsc",
+    "test": "vitest run",
+    "test:mvp": "node test-mvp.mjs",
+    "dashboard": "node ./dist/apps/dashboard/src/server.js",
+    "cli": "node ./dist/cli/src/index.js"
+  },
+  "keywords": [
+    "memory",
+    "vector",
+    "ai",
+    "context",
+    "rag",
+    "pgvector"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.23.1",
+    "typescript": "^5.5.0",
+    "vitest": "^1.6.0",
+    "zod": "^3.23.0"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
+  }
+}
