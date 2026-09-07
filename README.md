@@ -1,8 +1,9 @@
-# context-memory
+# agentmind
 
 **Persistent, project-scoped context layer for AI applications.**
 
 > A persistent, project-scoped context layer — not a vector DB wrapper.
+> Formerly `context-memory` — now `agentmind`. The `context-memory` CLI/bin remains as an alias.
 
 ```ts
 memory.remember()
@@ -14,17 +15,19 @@ memory.forget()
 ## Install
 
 ```bash
+npm install agentmind
+# legacy alias still works:
 npm install context-memory
 ```
 
 ## Quick start
 
 ```ts
-import { Memory } from "context-memory";
-import { SqliteMemoryStore } from "context-memory/storage";
-import { LocalEmbeddingProvider } from "context-memory/embeddings";
+import { Memory } from "agentmind";
+import { SqliteMemoryStore } from "agentmind/storage";
+import { LocalEmbeddingProvider } from "agentmind/embeddings";
 
-const store = new SqliteMemoryStore({ path: "./.context-memory/memory.db" });
+const store = new SqliteMemoryStore({ path: "./.agentmind/memory.db" });
 const memory = await Memory.create({
   project: "research-mesh",
   store,
@@ -46,7 +49,7 @@ console.log(ctx.text);
 ## Architecture
 
 ```
-              context-memory
+              agentmind
                     │
      ┌──────────────┼──────────────┐
      ▼              ▼              ▼
@@ -79,7 +82,7 @@ InMemory (tests)       (pg Pool, hnsw)
 - **Conflict resolution** — triggers `switched to/migrated to/now using` + embedding similarity >0.82 supersedes old
 
 ### Intelligence (Phase 5)
-- **Extraction** — `HeuristicExtractor` + `LLMExtractor` with `EXTRACTION_PROMPT`, `ToxicPolicy` filtering
+- **Extraction** — `HeuristicExtractor` + `LLMExtractor` with `EXTRACTION_PROMPT`
 - **Consolidation** — `Consolidator` clusters via cosine >0.82, creates `summary` memories, archives sources
 - **Lifecycle** — `extracted -> candidate -> validated -> stored -> retrieved -> updated -> archived`
 
@@ -89,17 +92,16 @@ InMemory (tests)       (pg Pool, hnsw)
 
 ### Production (Phase 9)
 - **SQLite** via `node:sqlite` `DatabaseSync` (Node 22+, zero native deps) + `InMemoryStore`
-- **Postgres + pgvector** — `PostgresMemoryStore` (`pg` Pool, `CREATE EXTENSION vector`, `vec vector(1536)`, `hnsw` index, `vec <=> $1` native search, falls back to hybrid)
+- **Postgres + pgvector** — `PostgresMemoryStore` (`pg` Pool, `CREATE EXTENSION vector`, `vec vector(1536)`, `hnsw` index, `vec <=> $1` native search)
 - **Migrations** — `packages/storage/src/migrations.ts` versioned, `schema_migrations`
-- **Config** — `resolveStorageConfig()` auto-detects `DATABASE_URL` else `CTX_MEMORY_DB` else `.context-memory/memory.db`, `autoDetectProject()` via `package.json`/cwd
+- **Config** — `resolveStorageConfig()` auto-detects `DATABASE_URL` else `AGENTMIND_DB`/`CTX_MEMORY_DB` else `.agentmind/memory.db`
 - **Security** — DB-level `project_id` filter, no cross-project leakage
-- **Privacy** — `forget(id)` deletes embedding, `forgetProject()`, `export()`, `storeSensitiveData=false` blocks `password/api key/secret`
+- **Privacy** — `forget(id)` deletes embedding, `forgetProject()`, `export()`, `storeSensitiveData=false`
 
 ### Observability & Policy
 ```ts
 memory.on("memory.created", m => ...)
 memory.on("retrieval.completed", e => ...)
-memory.on("memory.superseded", (old, next) => ...)
 
 const memory = await Memory.create({
   project: "x",
@@ -109,64 +111,48 @@ const memory = await Memory.create({
     maxMemoriesPerProject: 10000,
     storeSensitiveData: false,
     shouldRemember: (m) => !m.content.includes("greeting"),
-    maxTokensPerContext: 6000,
   }
 });
 ```
 
 ### Integrations (Phase 10)
 ```ts
-import { withMemory, createOpenAICaller } from "context-memory/integrations";
+import { withMemory, createOpenAICaller } from "agentmind/integrations";
 import OpenAI from "openai";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const { response, context } = await withMemory({
+const { response } = await withMemory({
   memory,
   messages: [{ role: "user", content: "What's our DB?" }],
   callLLM: createOpenAICaller(openai, "gpt-4o"),
 });
-// retrieve -> context -> LLM -> extract -> store automated
 ```
 Adapters: `withMemory` (OpenAI), `withAnthropicMemory`, `withMemoryAISDK` (Vercel), `withLangChainMemory`.
 
-### Dashboard `npx context-memory dashboard`
+### Dashboard `npx agentmind dashboard`
 
 ```
 http://localhost:4317
 ├── Overview (total/active/archived/byType)
-├── Memories (search, filter by type/importance, detail with embedding preview, source)
-├── Context Inspector (query -> embedding -> vector+keyword -> ranking -> final context, token count)
-├── Retrieval Logs (query, scores, tokens, timestamp)
-└── Consolidation (cluster & archive)
+├── Memories (search, filter, detail with embedding preview)
+├── Context Inspector (query -> vector+keyword -> ranking -> final context)
+├── Retrieval Logs
+└── Consolidation
 ```
 
-**API:**
-```
-GET    /api/projects
-GET    /api/projects/:id/stats
-GET    /api/projects/:id/memories?type=&minImportance=
-POST   /api/projects/:id/consolidate
-GET    /api/memories/:id
-PATCH  /api/memories/:id
-DELETE /api/memories/:id
-POST   /api/search         { project, query, limit }
-POST   /api/context        { project, query, maxTokens } -> { text, retrieval[] }
-POST   /api/remember       { project, content, type, importance }
-POST   /api/ingest         { project, role, content }
-GET    /api/retrievals/:projectId
-DELETE /api/projects/:id
-GET    /api/projects/:id/export
-```
+**API:** `GET /api/projects`, `POST /api/search`, `POST /api/context`, `POST /api/remember`, `GET /api/retrievals/:id`, etc.
 
 ### CLI
 ```bash
-npx context-memory init --project research-mesh
-npx context-memory project list
-npx context-memory memory search --project research-mesh --query "database"
-npx context-memory memory consolidate --project research-mesh
-npx context-memory ingest --project research-mesh --content "We use Postgres" --role user
-npx context-memory export --project research-mesh
-npx context-memory dashboard --port 4317
+npx agentmind init --project research-mesh
+npx agentmind project list
+npx agentmind memory search --project research-mesh --query "database"
+npx agentmind memory consolidate --project research-mesh
+npx agentmind ingest --project research-mesh --content "We use Postgres"
+npx agentmind export --project research-mesh
+npx agentmind dashboard --port 4317
+# legacy alias still works:
+npx context-memory dashboard
 ```
 
 ## Evaluation
@@ -175,8 +161,6 @@ npx context-memory dashboard --port 4317
 npm test          # vitest — 13 tests
 npm run test:mvp  # mvp harness
 ```
-
-Covers: retrieval precision/recall, context efficiency, cross-project leakage (0 failures), goldfish (Day 1 -> Day 30), deduplication, token budgeting, consolidation, conflict, privacy.
 
 ## Packaging
 
@@ -189,9 +173,4 @@ Covers: retrieval precision/recall, context efficiency, cross-project leakage (0
 "./retrieval": "./dist/packages/retrieval/src/index.js"
 ```
 
-Modular: `@context-memory/core`, `@context-memory/storage`, etc. Umbrella `context-memory` installs defaults.
-
-## Roadmap
-
-- Phase 8: React/Vite dashboard with graph visualization
-- Phase 11: Redis cache, multi-tenant `organization_id`, OTEL, `pnpm` + `turborepo`
+Modular: `@agentmind/core`, `@agentmind/storage`, etc. Umbrella `agentmind` installs defaults. Legacy `@context-memory/*` remains as alias via bin.

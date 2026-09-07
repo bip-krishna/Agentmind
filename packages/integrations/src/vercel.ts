@@ -3,7 +3,7 @@ import type { MemoryEngine } from "../../core/src/memory.js";
 /**
  * Vercel AI SDK integration
  * Example:
- *   import { withMemoryAISDK } from "@context-memory/integrations/vercel";
+ *   import { withMemoryAISDK } from "@agentmind/integrations/vercel";
  *   const { text } = await withMemoryAISDK({ memory, prompt, generateText });
  */
 export async function withMemoryAISDK(opts: {

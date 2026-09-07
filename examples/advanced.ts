@@ -35,7 +35,7 @@ console.log("Consolidated:", consolidated.length);
 
 // OpenAI integration example (pseudo)
 /*
-import { withMemory, createOpenAICaller } from "@context-memory/integrations/openai";
+import { withMemory, createOpenAICaller } from "@agentmind/integrations/openai";
 import OpenAI from "openai";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const { response } = await withMemory({

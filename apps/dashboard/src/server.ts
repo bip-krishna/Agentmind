@@ -6,7 +6,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 const PORT = Number(process.env.PORT ?? 4317);
-const DB_PATH = process.env.CTX_MEMORY_DB ?? "./.context-memory/memory.db";
+const DB_PATH = process.env.AGENTMIND_DB ?? process.env.CTX_MEMORY_DB ?? "./.agentmind/memory.db";
 
 const store = new SqliteMemoryStore({ path: DB_PATH });
 const embed = new LocalEmbeddingProvider();
@@ -180,7 +180,7 @@ const server = createServer(async (req, res) => {
 
 const DASHBOARD_HTML = `<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Context Memory Dashboard</title>
+<title>AgentMind Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   ::-webkit-scrollbar{width:6px;height:6px} ::-webkit-scrollbar-thumb{background:#3f3f46;border-radius:3px}
@@ -188,7 +188,7 @@ const DASHBOARD_HTML = `<!doctype html>
 </head><body class="bg-zinc-950 text-zinc-100 min-h-screen">
 <div class="max-w-7xl mx-auto p-6">
   <header class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold tracking-tight">Context Memory <span class="text-zinc-500 font-normal">localhost</span></h1>
+    <h1 class="text-2xl font-bold tracking-tight">AgentMind <span class="text-zinc-500 font-normal">localhost</span></h1>
     <div class="flex gap-2">
       <select id="projectSelect" class="bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-sm"></select>
       <button onclick="loadProjects()" class="bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded text-sm">Refresh</button>
@@ -362,7 +362,7 @@ loadProjects();
 </body></html>`;
 
 server.listen(PORT, () => {
-  console.log(`Context Memory dashboard at http://localhost:${PORT}`);
+  console.log(`AgentMind dashboard at http://localhost:${PORT}`);
   console.log(`DB: ${DB_PATH}`);
 });
 

@@ -1,7 +1,7 @@
 {
-  "name": "context-memory",
+  "name": "@bip-krishna/agentmind",
   "private": false,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Persistent, project-scoped context layer for AI applications",
   "type": "module",
   "exports": {
@@ -12,7 +12,8 @@
     "./retrieval": "./dist/packages/retrieval/src/index.js"
   },
   "bin": {
-    "context-memory": "./dist/cli/src/index.js"
+    "agentmind": "dist/cli/src/index.js",
+    "context-memory": "dist/cli/src/index.js"
   },
   "workspaces": [
     "packages/*",

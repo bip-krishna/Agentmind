@@ -1,5 +1,5 @@
 {
-  "name": "@context-memory/embeddings",
+  "name": "@agentmind/embeddings",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/src/index.js",

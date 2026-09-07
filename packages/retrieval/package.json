@@ -1,5 +1,5 @@
 {
-  "name": "@context-memory/retrieval",
+  "name": "@agentmind/retrieval",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/src/index.js",

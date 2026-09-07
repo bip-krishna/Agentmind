@@ -2,7 +2,7 @@ import type { MemoryEngine } from "../../core/src/memory.js";
 /**
  * OpenAI integration — automates retrieve -> context -> LLM -> extract -> store
  * Usage:
- *   import { withMemory } from "@context-memory/integrations/openai";
+ *   import { withMemory } from "@agentmind/integrations/openai";
  *   const res = await withMemory({ memory, messages, openai, model: "gpt-4o" });
  */
 export interface ChatMessage {

@@ -4,7 +4,7 @@ import { SqliteMemoryStore } from "../../packages/storage/src/sqlite-store.js";
 import { LocalEmbeddingProvider } from "../../packages/embeddings/src/local.js";
 import * as fs from "node:fs";
 
-const DB_PATH = process.env.CTX_MEMORY_DB ?? "./.context-memory/memory.db";
+const DB_PATH = process.env.AGENTMIND_DB ?? process.env.CTX_MEMORY_DB ?? "./.agentmind/memory.db";
 const store = new SqliteMemoryStore({ path: DB_PATH });
 const embed = new LocalEmbeddingProvider();
 
@@ -12,21 +12,23 @@ const [,, cmd, ...args] = process.argv;
 
 function help() {
   console.log(`
-context-memory
+agentmind (formerly context-memory)
 
 Usage:
-  context-memory init [--project <name>]
-  context-memory project list
-  context-memory project create <name>
-  context-memory project delete <name>
-  context-memory memory list --project <name> [--type <type>] [--limit <n>]
-  context-memory memory search --project <name> --query "text" [--limit 5]
-  context-memory memory show <id>
-  context-memory memory delete <id>
-  context-memory memory consolidate --project <name>
-  context-memory ingest --project <name> --content "text" [--role user]
-  context-memory export --project <name> [--include-archived]
-  context-memory dashboard [--port 4317]
+  agentmind init [--project <name>]
+  agentmind project list
+  agentmind project create <name>
+  agentmind project delete <name>
+  agentmind memory list --project <name> [--type <type>] [--limit <n>]
+  agentmind memory search --project <name> --query "text" [--limit 5]
+  agentmind memory show <id>
+  agentmind memory delete <id>
+  agentmind memory consolidate --project <name>
+  agentmind ingest --project <name> --content "text" [--role user]
+  agentmind export --project <name> [--include-archived]
+  agentmind dashboard [--port 4317]
+
+Aliases: context-memory (legacy)
 `);
 }
 
@@ -34,8 +36,10 @@ async function main() {
   if (!cmd || cmd === "help" || cmd === "--help") return help();
 
   if (cmd === "init") {
-    fs.mkdirSync("./.context-memory", { recursive: true });
-    console.log("Initialized .context-memory/");
+    fs.mkdirSync("./.agentmind", { recursive: true });
+    // legacy compat
+    if (!fs.existsSync("./.context-memory")) fs.mkdirSync("./.context-memory", { recursive: true });
+    console.log("Initialized .agentmind/");
     console.log(`DB: ${DB_PATH}`);
     const pIdx = args.indexOf("--project");
     if (pIdx !== -1) {
