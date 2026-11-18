@@ -1,9 +1,10 @@
 # agentmind
 
-**Persistent, project-scoped context layer for AI applications.**
+Persistent, project-scoped memory for AI applications. Store decisions and findings, retrieve them later, and assemble relevant context for another session.
 
-> A persistent, project-scoped context layer — not a vector DB wrapper.
-> Formerly `context-memory` — now `agentmind`. The `context-memory` CLI/bin remains as an alias.
+[Install](#install) · [Quick start](#quick-start) · [Architecture](#architecture) · [CLI](#cli)
+
+The former `context-memory` CLI name is still available as an alias.
 
 ```ts
 memory.remember()
